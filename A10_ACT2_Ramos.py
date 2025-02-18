@@ -1,42 +1,54 @@
-def mealy_machine():
-    transitions = {}  # Dictionary to store transitions
-    current_state = input("Enter the starting state: ")
-    states = [current_state]  # List to keep track of states
+class MealyMachine:
+    def __init__(self, states, inputs, outputs, initialState):
+        self.states = states
+        self.inputs = inputs
+        self.outputs = outputs
+        self.transitions = {}
+        self.currentState = initialState
 
-    while True:
-        from_state = input("Enter 'first state (or 'done'): ")
-        if from_state.lower() == 'done':
-            break
+    def addTransition(self, currentState, inputSymbol, nextState, outputSymbol):
+        self.transitions[(currentState, inputSymbol)] = (nextState, outputSymbol)
 
-        if from_state not in states:
-            states.append(from_state)
+    def transition(self, inputSymbol):
+        if (self.currentState, inputSymbol) in self.transitions:
+            nextState, output = self.transitions[(self.currentState, inputSymbol)]
+            self.currentState = nextState
+            return output
+        else:
+            return None
 
-        input_symbol = input(f"Enter input symbol for state {from_state}: ")
-        next_state = input(f"Enter 'to' state for ({from_state}, {input_symbol}): ")
+    def get_currentState(self):
+        return self.currentState
 
-        if next_state not in states:
-            states.append(next_state)
+states = input("Enter the states (space-separated): ").split(' ')
+inputs = input("Enter the inputs (space-separated): ").split(' ')
+outputs = input("Enter the outputs (space-separated): ").split(' ')
+initialState = input("Enter the initial state: ")
 
-        output_symbol = input(f"Enter output symbol for ({from_state}, {input_symbol}): ")
-        transitions[(from_state, input_symbol)] = (next_state, output_symbol)
+mealyMachine = MealyMachine(states, inputs, outputs, initialState)
 
-    while True:
-        input_seq = input("Enter input sequence (or 'exit'): ")
-        if input_seq.lower() == 'exit':
-            break
+num_transitions = int(input("Enter the number of transitions: "))
+for _ in range(num_transitions):
+    currentState = input("Enter current state: ")
+    inputSymbol = input("Enter input symbol: ")
+    nextState = input("Enter next state: ")
+    outputSymbol = input("Enter output symbol: ")
+    mealyMachine.addTransition(currentState, inputSymbol, nextState, outputSymbol)
 
-        output_seq = ""
-        current_state_run = current_state  # Reset to starting state for each run
+while True:
+    inputSequence = input("Enter the input sequence (or type 'exit' to quit): ")
+    if inputSequence.lower() == 'exit':
+        break
 
-        for input_sym in input_seq:
-            if (current_state_run, input_sym) in transitions:
-                next_state, output = transitions[(current_state_run, input_sym)]
-                current_state_run = next_state
-                output_seq += output
-            else:
-                output_seq = "Invalid Input"  # Or handle as you prefer
-                break  # Stop processing on invalid input
+    outputSequence = ""
+    for symbol in inputSequence:
+        output = mealyMachine.transition(symbol)
+        if output is not None:
+            outputSequence += output
 
-        print("Output:", output_seq)
+    print("Input Sequence:", inputSequence)
+    print("Output Sequence:", outputSequence)
 
-mealy_machine()
+    # Reset the current state for the next input sequence
+    mealyMachine.currentState = initialState
+print("Exiting the program.")
